@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import healthRoute from "./routes/health.route";
+import routes from "./routes/route";
 import dotenv from "dotenv";
 import {connectDB} from "./database/db"
 dotenv.config();
@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.json());
 connectDB();
 
-app.use("/api", healthRoute);
+app.use("/api", routes);
 
 
 const PORT = process.env.PORT || 4000;

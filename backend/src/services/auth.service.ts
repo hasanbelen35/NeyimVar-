@@ -1,7 +1,8 @@
-import  prisma  from '../database/db';
+import prisma from '../database/db';
 import { hashPassword } from '../utils/hash.util';
 import { AppError } from '../utils/appError';
-
+import bcrypt from "bcrypt";
+import { generateToken } from '../utils/jwt';
 ///////////////// REGISTER USER SERVICE //////////////////
 export const registerUserService = async (userData: any) => {
   const { email, password, name, surname } = userData;
@@ -18,11 +19,11 @@ export const registerUserService = async (userData: any) => {
   const hashedPassword = await hashPassword(password);
 
   return await prisma.user.create({
-    data: { 
-      email, 
-      password: hashedPassword, 
-      name, 
-      surname 
+    data: {
+      email,
+      password: hashedPassword,
+      name,
+      surname
     },
     select: {
       id: true,
@@ -33,3 +34,35 @@ export const registerUserService = async (userData: any) => {
     }
   });
 };
+
+
+///////////////// LOGIN USER SERVICE //////////////////
+export const loginUserService = async (email: string, password: string) => {
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) {
+    throw new AppError("INVALID EMAIL OR password.", 401);
+  };
+
+  // Compare provided password with stored hashed password
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!isPasswordValid) {
+    throw new AppError("INVALID EMAIL OR password.", 401);
+  };
+
+  // jwt token
+  const token = generateToken({ id: user.id, email: user.email });
+
+  return {
+    user: {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      surname: user.surname,
+    },
+    token: token
+  }
+};
+
+
+
+ 

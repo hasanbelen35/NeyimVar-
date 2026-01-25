@@ -10,3 +10,13 @@ export const register = catchAsync(async (req: Request, res: Response) => {
     data: user
   });
 });
+
+// LOGIN CONTROLLER
+export const login = catchAsync(async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  const result = await AuthService.loginUserService(email, password);
+  res.status(200).json({
+    status: 'success',
+    data: result
+  });
+});
