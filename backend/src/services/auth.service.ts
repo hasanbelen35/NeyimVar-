@@ -50,8 +50,8 @@ export const loginUserService = async (email: string, password: string) => {
   };
 
   // jwt token
-  const token = generateToken({ id: user.id, email: user.email });
-
+  const token = generateToken({ userId: user.id, email: user.email });
+  
   return {
     user: {
       id: user.id,
