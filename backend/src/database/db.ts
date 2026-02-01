@@ -5,9 +5,9 @@ const prisma = new PrismaClient();
 export async function connectDB(): Promise<void> {
   try {
     await prisma.$connect();
-    console.log("✅ MySQL veritabanına bağlanıldı");
+    console.log("db connection successful");
   } catch (error) {
-    console.error("❌ Veritabanı bağlantı hatası:", error);
+    console.error("db connection error", error);
     process.exit(1);
   }
 }
