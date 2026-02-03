@@ -1,11 +1,13 @@
 import { Router } from "express";
-import { register, login } from '../controllers/auth.controller';
-import { protectedRoute } from '../controllers/protected';  
-import  { authMiddleware } from '../middlewares/auth.middleware';
-import {validate} from '../middlewares/validate';
-import { registerSchema , loginSchema} from '../validators/authValidator';
+import { register, login, logout, getMe } from '../controllers/auth.controller';
+import { protectedRoute } from '../controllers/protected';
+import { authMiddleware } from '../middlewares/auth.middleware';
+import { validate } from '../middlewares/validate';
+import { registerSchema, loginSchema } from '../validators/authValidator';
 const router = Router();
-router.post('/register',validate(registerSchema) , register);
+router.post('/register', validate(registerSchema), register);
 router.post('/login', validate(loginSchema), login);
-router.get("/protected", authMiddleware , protectedRoute );
+router.get("/protected", authMiddleware, protectedRoute);
+router.get("/logout", logout)
+router.get("/me", authMiddleware, getMe);
 export default router;

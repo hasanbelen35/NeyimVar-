@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-
+// LOGIN USER ASYNC THUNK
 export const loginUser = createAsyncThunk(
     'auth/loginUser',
     async (loginData: unknown, { rejectWithValue }) => {
@@ -24,7 +24,7 @@ export const loginUser = createAsyncThunk(
         }
     }
 );
-
+// REGİSTER USER ASYNC THUNK
 export const registerUser = createAsyncThunk(
     'auth/registerUser',
     async (userData: unknown, { rejectWithValue }) => {
@@ -50,6 +50,28 @@ export const registerUser = createAsyncThunk(
     }
 );
 
+// LOGOUT USER ASYNC THUNK
+export const logoutUser = createAsyncThunk(
+    'auth/logoutUser',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/logout`, {
+                method: 'GET',
+                credentials: 'include',
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                const errorMessage = data.message || 'Logout failed';
+                return rejectWithValue(errorMessage);
+            }
+            return data;
+        } catch (err: any) {
+            return rejectWithValue(err.message || 'An error occurred during logout');
+        }
+    }
+);
+
+// get 
 const authSlice = createSlice({
     name: 'auth',
     initialState: {

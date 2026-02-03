@@ -3,6 +3,8 @@ import { hashPassword } from '../utils/hash.util';
 import { AppError } from '../utils/appError';
 import bcrypt from "bcrypt";
 import { generateToken } from '../utils/jwt';
+
+
 ///////////////// REGISTER USER SERVICE //////////////////
 export const registerUserService = async (userData: any) => {
   const { email, password, name, surname } = userData;
@@ -63,6 +65,26 @@ export const loginUserService = async (email: string, password: string) => {
   }
 };
 
+// GET LOGGED IN USER SERVICE
+export const getMeService = async (userId: number) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      surname: true,
+      createdAt: true
+    }
+  });   
+  if (!user) {
+    throw new AppError("User not found.", 404);
+  } 
+  return user;
+};
+  
+
+  
 
 
  

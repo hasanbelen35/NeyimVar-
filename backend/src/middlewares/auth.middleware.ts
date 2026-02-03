@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../utils/jwt";
+
 export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const token = req?.cookies?.token;
