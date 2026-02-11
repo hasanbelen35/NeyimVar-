@@ -20,7 +20,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (success) {
-      router.push('/'); 
+      router.push('/user'); 
       dispatch(resetStatus());
     }
   }, [success, router, dispatch]);
