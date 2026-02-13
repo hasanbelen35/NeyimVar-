@@ -4,7 +4,7 @@ import { protectedRoute } from '../controllers/protected';
 import { authMiddleware } from '../middlewares/auth.middleware';
 import { validate } from '../middlewares/validate';
 import { registerSchema, loginSchema } from '../validators/authValidator';
-import { getProfileByUserIdController } from "../controllers/profile.controller";
+import { getProfileByUserIdController, updateProfileController } from "../controllers/profile.controller";
 const router = Router();
 // AUTH ROUTES
 router.post('/register', validate(registerSchema), register);
@@ -14,4 +14,5 @@ router.get("/logout", logout)
 router.get("/me", authMiddleware, getMe);
 //PROFILE ROUTES
 router.get('/profile/me', authMiddleware, getProfileByUserIdController);
+router.put('/profile/edit-profile', authMiddleware, updateProfileController);
 export default router;

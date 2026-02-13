@@ -15,7 +15,6 @@ export const generateToken = (payloadData: { userId: number, email: string }) =>
     { expiresIn: "1h" }
   );
 };
-
 export const verifyToken = (token: string): JwtPayload | null => {
   try {
     return jwt.verify(token, JWT_SECRET) as JwtPayload;
