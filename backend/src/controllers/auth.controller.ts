@@ -5,7 +5,7 @@ import { catchAsync } from '../utils/catchAsync';
 declare global {
   namespace Express {
     interface Request {
-      user?: { userId: string };
+      user?: { userId: number };
     }
   }
 }
@@ -27,8 +27,8 @@ export const login = catchAsync(async (req: Request, res: Response) => {
   res.cookie("token", result.token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",   //strict
-    maxAge: 30 * 1000
+    sameSite: "lax",
+    maxAge: 60 * 60 * 1000 
   });
 
   res.status(200).json({
@@ -56,10 +56,17 @@ export const logout = catchAsync(async (req: Request, res: Response) => {
 
 // GET ME USER
 export const getMe = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.userId
-  const user = await AuthService.getMeService(Number(userId!)); 
+  if (!req.user || !req.user.userId) {
+    return res.status(401).json({
+      status: "fail",
+      message: "Unauthorized"
+    });
+  }
+
+  const user = await AuthService.getMeService(req.user.userId);
+
   res.status(200).json({
-    status: 'success',
+    status: "success",
     data: user
   });
-} );
+});

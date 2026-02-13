@@ -4,9 +4,17 @@ import { AppError } from '../utils/appError';
 import bcrypt from "bcrypt";
 import { generateToken } from '../utils/jwt';
 
+// REGISTER DTO
+interface RegisterDto {
+  email: string;
+  password: string;
+  name: string;
+  surname: string;
+}
+
 
 ///////////////// REGISTER USER SERVICE //////////////////
-export const registerUserService = async (userData: any) => {
+export const registerUserService = async (userData: RegisterDto) => {
   const { email, password, name, surname } = userData;
 
   if (!email || !password || !name || !surname) {
@@ -25,7 +33,10 @@ export const registerUserService = async (userData: any) => {
       email,
       password: hashedPassword,
       name,
-      surname
+      surname,
+      profile: {
+        create: {}
+      },
     },
     select: {
       id: true,

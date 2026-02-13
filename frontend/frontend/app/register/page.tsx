@@ -83,6 +83,18 @@ const RegisterPage = () => {
         >
           {loading ? 'Processing...' : 'Sign Up'}
         </button>
+
+             <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-4">
+          Do you &apos;t have already an account?{" "}
+          <span 
+            className="text-blue-600 dark:text-blue-400 font-semibold cursor-pointer hover:underline underline-offset-4"
+            onClick={() => router.push('/login')}
+          >
+            Sign In
+          </span>
+        </p>
+
+
       </form>
     </div>
   );

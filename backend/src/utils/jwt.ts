@@ -1,22 +1,25 @@
 import jwt from 'jsonwebtoken';
 const JWT_SECRET = process.env.JWT_SECRET as string;
 // utils/jwt.ts
-export const generateToken = (payloadData: { userId: number, email: string }) => {
-  const payload = {
-    sub: payloadData.userId,   
-    email: payloadData.email,
-    iat: Math.floor(Date.now() / 1000) 
-  };
 
-  return jwt.sign(payload, JWT_SECRET as string, { 
-    expiresIn: '30s' 
-  });
+interface JwtPayload {
+  userId: number;
+}
+export const generateToken = (payloadData: { userId: number, email: string }) => {
+  return jwt.sign(
+    {
+      userId: payloadData.userId,   
+      email: payloadData.email
+    },
+    JWT_SECRET,
+    { expiresIn: "1h" }
+  );
 };
 
-export const verifyToken = (token: string) => {
+export const verifyToken = (token: string): JwtPayload | null => {
   try {
-    return jwt.verify(token, JWT_SECRET);
-  } catch (error:any) {
+    return jwt.verify(token, JWT_SECRET) as JwtPayload;
+  } catch {
     return null;
   }
 };
