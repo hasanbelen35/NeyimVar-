@@ -26,7 +26,7 @@ model Profile {
   bio         String? @db.Text
   university  String?
   department  String?
-  avatarUrl   String?
+  avatarUrl   String? @db.Text
 
   user        User    @relation(fields: [userId], references: [id])
 }

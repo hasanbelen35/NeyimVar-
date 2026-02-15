@@ -5,7 +5,7 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get('token')?.value
   const { pathname } = request.nextUrl
 
-  const protectedRoutes = ['/dashboard', '/user', '/settings', '/profile',]
+  const protectedRoutes = ['/dashboard', '/user', '/settings', '/edit-profile',]
 
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
 

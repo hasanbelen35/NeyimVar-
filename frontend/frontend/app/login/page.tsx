@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import { loginUser, resetStatus } from '@/store/authSlice';
-import { AppDispatch, RootState } from '@/store';
+import { AppDispatch, RootState } from '@/store/store';
 import Input from '@/components/input';
 import ThemeToggle from '@/components/themeButton';
 
@@ -21,7 +21,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (success) {
-      router.push('/user'); 
+      router.push('/edit-profile'); 
       dispatch(resetStatus());
     }
   }, [success, router, dispatch]);
@@ -38,7 +38,6 @@ const LoginPage = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-900 p-4 transition-colors duration-300">
       
-      {/* Tema Değiştiriciyi sağ üste sabitleyebiliriz */}
       <div className="absolute top-4 right-4">
         <ThemeToggle />
       </div>

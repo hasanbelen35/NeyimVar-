@@ -1,85 +1,101 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-// LOGIN USER ASYNC THUNK
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import axios, { AxiosError } from 'axios';
+
+interface ApiError {
+    message?: string;
+    errors?: { message: string }[];
+}
+
+export interface User {
+    id: string | number;
+    email: string;
+    username?: string;
+}
+
+interface AuthState {
+    user: User | null;
+    loading: boolean;
+    error: string | null;
+    success: boolean;
+}
+
+const initialState: AuthState = {
+    user: null,
+    loading: false,
+    error: null,
+    success: false,
+};
+
 export const loginUser = createAsyncThunk(
     'auth/loginUser',
     async (loginData: unknown, { rejectWithValue }) => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(loginData),
-                credentials: 'include',
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                const errorMessage = data.errors?.[0]?.message || data.message || 'Login failed';
-                return rejectWithValue(errorMessage);
-            }
-
-            return data;
-        } catch (err: any) {
-            return rejectWithValue(err.message || 'An error occurred during login');
+            const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_SERVER_URL}/api/login`,
+                loginData,
+                {
+                    headers: { 'Content-Type': 'application/json' },
+                    withCredentials: true,
+                }
+            );
+            return response.data;
+        } catch (err) {
+            const error = err as AxiosError<ApiError>;
+            const errorMessage =
+                error.response?.data?.errors?.[0]?.message ||
+                error.response?.data?.message ||
+                error.message ||
+                'Login failed';
+            return rejectWithValue(errorMessage);
         }
     }
 );
-// REGİSTER USER ASYNC THUNK
+
 export const registerUser = createAsyncThunk(
     'auth/registerUser',
     async (userData: unknown, { rejectWithValue }) => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/register`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(userData),
-                credentials: 'include',
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                const errorMessage = data.errors?.[0]?.message || data.message || 'Registration failed';
-                return rejectWithValue(errorMessage);
-            }
-
-            return data;
-        } catch (err: any) {
-            return rejectWithValue(err.message || "An error occurred");
+            const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_SERVER_URL}/api/register`,
+                userData,
+                {
+                    headers: { 'Content-Type': 'application/json' },
+                    withCredentials: true,
+                }
+            );
+            return response.data;
+        } catch (err) {
+            const error = err as AxiosError<ApiError>;
+            const errorMessage =
+                error.response?.data?.errors?.[0]?.message ||
+                error.response?.data?.message ||
+                error.message ||
+                'Registration failed';
+            return rejectWithValue(errorMessage);
         }
     }
 );
 
-// LOGOUT USER ASYNC THUNK
 export const logoutUser = createAsyncThunk(
     'auth/logoutUser',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/logout`, {
-                method: 'GET',
-                credentials: 'include',
-            });
-            const data = await response.json();
-            if (!response.ok) {
-                const errorMessage = data.message || 'Logout failed';
-                return rejectWithValue(errorMessage);
-            }
-            return data;
-        } catch (err: any) {
-            return rejectWithValue(err.message || 'An error occurred during logout');
+            const response = await axios.get(
+                `${process.env.NEXT_PUBLIC_SERVER_URL}/api/logout`,
+                { withCredentials: true }
+            );
+            return response.data;
+        } catch (err) {
+            const error = err as AxiosError<ApiError>;
+            const errorMessage = error.response?.data?.message || 'Logout failed';
+            return rejectWithValue(errorMessage);
         }
     }
 );
 
-// get 
 const authSlice = createSlice({
     name: 'auth',
-    initialState: {
-        user: null,
-        loading: false,
-        error: null as string | null,
-        success: false,
-    },
+    initialState,
     reducers: {
         resetStatus: (state) => {
             state.error = null;
@@ -97,7 +113,7 @@ const authSlice = createSlice({
                 state.loading = true;
                 state.error = null;
             })
-            .addCase(registerUser.fulfilled, (state, action) => {
+            .addCase(registerUser.fulfilled, (state, action: PayloadAction<User>) => {
                 state.loading = false;
                 state.user = action.payload;
                 state.success = true;
@@ -110,7 +126,7 @@ const authSlice = createSlice({
                 state.loading = true;
                 state.error = null;
             })
-            .addCase(loginUser.fulfilled, (state, action) => {
+            .addCase(loginUser.fulfilled, (state, action: PayloadAction<{ user: User }>) => {
                 state.loading = false;
                 state.user = action.payload.user;
                 state.success = true;

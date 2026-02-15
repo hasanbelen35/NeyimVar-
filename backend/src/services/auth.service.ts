@@ -3,14 +3,8 @@ import { hashPassword } from '../utils/hash.util';
 import { AppError } from '../utils/appError';
 import bcrypt from "bcrypt";
 import { generateToken } from '../utils/jwt';
-
+import { RegisterDto } from '../types/auth.type';
 // REGISTER DTO
-interface RegisterDto {
-  email: string;
-  password: string;
-  name: string;
-  surname: string;
-}
 
 
 ///////////////// REGISTER USER SERVICE //////////////////

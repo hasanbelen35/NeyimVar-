@@ -12,17 +12,18 @@ const app = express();
 app.use(helmet());
 //cors
 app.use(cors({
-  origin: 'http://localhost:3000', 
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true 
+  origin: 'http://localhost:3000',
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 app.use(express.json());
+app.use(cookieParser());
+
 //database connection
 connectDB();
 
 //routes
 app.use("/api", routes);
-app.use(cookieParser());
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {

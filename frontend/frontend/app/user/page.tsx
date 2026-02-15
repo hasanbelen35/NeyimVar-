@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import { logoutUser, resetStatus } from '@/store/authSlice';
-import { AppDispatch, RootState } from '@/store';
+import { AppDispatch, RootState } from '@/store/store';
 import ThemeToggle from '@/components/themeButton';
 
 const LogoutPage = () => {
