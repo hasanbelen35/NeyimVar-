@@ -26,15 +26,10 @@ username    String? @unique
 
 // UPDATE PROFILE SERVICE
 export const updateProfile = async (userId: number, profileData: ProfileDto) => {
-    const { username, bio, university, department, avatarUrl } = profileData;
     return await prisma.profile.update({
         where: { userId },
         data: {
-            username,
-            bio,
-            university,
-            department,
-            avatarUrl
+            ...profileData
         }
     });
 };      

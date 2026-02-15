@@ -20,7 +20,7 @@ const ProfilePage = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-900">
-        <div className="animate-pulse text-blue-600 font-bold uppercase tracking-widest">Loading...</div>
+        <div className="animate-pulse text-blue-600 font-bold uppercase tracking-widest">Yükleniyor...</div>
       </div>
     );
   }
@@ -47,29 +47,29 @@ const ProfilePage = () => {
 
           <div className="text-center space-y-1 mb-8">
             <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              @{username || "unknown_user"}
+              @{username || "isimsiz_kullanici"}
             </h1>
             <p className="text-blue-600 dark:text-blue-400 font-medium text-sm">
-              {department || "Department Not Specified"}
+              {department || "Bölüm Belirtilmedi"}
             </p>
           </div>
 
           <div className="w-full space-y-3">
             <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-700/50">
               <span className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest block mb-1">
-                University
+                Üniversite
               </span>
               <p className="text-slate-700 dark:text-slate-200 font-semibold text-sm">
-                {university || "Not Specified"}
+                {university || "Belirtilmedi"}
               </p>
             </div>
 
             <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-700/50">
               <span className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest block mb-1">
-                About
+                Hakkında
               </span>
               <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed italic">
-                {bio ? `"${bio}"` : "No bio added yet."}
+                {bio ? `"${bio}"` : "Henüz bir biyografi eklenmemiş."}
               </p>
             </div>
           </div>
@@ -82,7 +82,7 @@ const ProfilePage = () => {
 
           <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-700 w-full flex justify-center">
             <button className="text-xs font-bold text-slate-400 dark:text-slate-500 hover:text-blue-500 transition-colors uppercase tracking-widest">
-              Share Profile
+              Profili Paylaş
             </button>
           </div>
         </div>

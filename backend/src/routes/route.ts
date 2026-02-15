@@ -5,6 +5,7 @@ import { authMiddleware } from '../middlewares/auth.middleware';
 import { validate } from '../middlewares/validate';
 import { registerSchema, loginSchema } from '../validators/authValidator';
 import { getProfileByUserIdController, updateProfileController } from "../controllers/profile.controller";
+import { createNoteController } from "../controllers/note.controller";
 const router = Router();
 // AUTH ROUTES
 router.post('/register', validate(registerSchema), register);
@@ -15,4 +16,8 @@ router.get("/me", authMiddleware, getMe);
 //PROFILE ROUTES
 router.get('/profile/me', authMiddleware, getProfileByUserIdController);
 router.put('/profile/edit-profile', authMiddleware, updateProfileController);
+//NOTE ROUTES   
+router.post('/notes/create-new-note', authMiddleware, createNoteController)
+
+
 export default router;

@@ -6,6 +6,7 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+// USER MODEL
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
@@ -17,8 +18,9 @@ model User {
   updatedAt DateTime @updatedAt
 
   profile   Profile?
+  notes     Note[]
 }
-
+// PROFILE MODEL
 model Profile {
   id          Int     @id @default(autoincrement())
   userId      Int     @unique
@@ -31,3 +33,15 @@ model Profile {
   user        User    @relation(fields: [userId], references: [id])
 }
 
+// NOTE MODEL
+model Note {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String   @db.Text
+  isPublic  Boolean  @default(true) 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
