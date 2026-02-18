@@ -29,3 +29,21 @@ export const getAllNotesService = async (userId: number) => {
         where: { userId }
     });
 };
+
+// DELETE NOTE SERVICE
+export const deleteNoteService = async (noteId: number, userId: number) => {
+    const note = await prisma.note.findUnique({
+        where: { id: noteId }
+    });
+    if (!note) {
+        throw new Error('Note not found');
+    };
+    if (note.userId !== userId) {
+        throw new Error('Unauthorized');
+    };
+    await prisma.note.delete({
+        where: { id: noteId }
+    });
+
+};
+

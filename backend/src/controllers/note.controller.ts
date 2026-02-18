@@ -45,5 +45,20 @@ export const getAllNotesController = catchAsync(async (req: Request, res: Respon
         data: notes
 
     });
-
 });
+
+// DELETE NOTE CONTROLLER
+export const deleteNoteController = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.user?.userId;
+    const noteId = parseInt(req.params.id as string);
+    if (!userId) {
+        return res.status(401).json({ status: 'fail', message: 'Unauthorized' });
+    };
+
+    await NoteService.deleteNoteService(noteId, userId);
+    res.status(204).json({
+        status: 'success',
+        data: null
+    });
+});
+
