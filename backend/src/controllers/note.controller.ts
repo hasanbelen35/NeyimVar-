@@ -34,7 +34,7 @@ export const createNoteController = catchAsync(async (req: Request, res: Respons
 // GET ALL NOTES CONTROLLER
 export const getAllNotesController = catchAsync(async (req: Request, res: Response) => {
     const userId = req.user?.userId;
-
+    
     if (!userId) {
         return res.status(401).json({ status: 'fail', message: 'Unauthorized' });
     };
@@ -59,6 +59,32 @@ export const deleteNoteController = catchAsync(async (req: Request, res: Respons
     res.status(204).json({
         status: 'success',
         data: null
+    });
+});
+
+//UPDATE NOTE CONTROLLER
+export const updateNoteController = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.user?.userId;
+    const noteId = parseInt(req.params.id as string);
+    const { title, content, isPublic } = req.body;
+    if (!userId) {
+        return res.status(401).json({ status: 'fail', message: 'Unauthorized' });
+    };
+    if (!title || !content) {
+        return res.status(400).json({
+            status: 'fail',
+            message: 'Title and content are required.'
+        });
+    }   
+    const updatedNote = await NoteService.updateNoteService(noteId, userId, {
+        title,
+        content,    
+        isPublic: isPublic ?? true
+    });
+
+    res.status(200).json({
+        status: 'success',
+        data: updatedNote
     });
 });
 

@@ -47,3 +47,21 @@ export const deleteNoteService = async (noteId: number, userId: number) => {
 
 };
 
+// UPDATE NOTE SERVICE
+export const updateNoteService = async (noteId: number, userId: number, updatedNoteData: NoteDto) => {
+    const note = await prisma.note.findUnique({
+        where: { id: noteId }
+    });
+    if (!note) {
+        throw new Error('Note not found');
+    };
+    if (note.userId !== userId) {
+        throw new Error('Unauthorized');
+    };
+    return await prisma.note.update({
+        where: { id: noteId },
+        data: {
+            ...updatedNoteData
+        }
+    });
+};

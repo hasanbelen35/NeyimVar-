@@ -20,6 +20,7 @@ router.put('/profile/edit-profile', authMiddleware, updateProfileController);
 router.post('/notes/create-new-note', authMiddleware, NoteController.createNoteController)
 router.get('/notes/get-all-notes', authMiddleware, NoteController.getAllNotesController);
 router.delete('/notes/delete-note/:id', authMiddleware, NoteController.deleteNoteController);
+router.put('/notes/update-note/:id', authMiddleware, NoteController.updateNoteController);
 
 
 
