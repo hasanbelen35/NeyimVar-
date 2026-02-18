@@ -39,7 +39,7 @@ const ProfilePage = () => {
 
   const handleSave = () => {
     dispatch(updateProfile(formData));
-    router.push('/dashboard');
+    router.push('/home');
   };
 
   return (
