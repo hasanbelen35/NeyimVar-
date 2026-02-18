@@ -9,7 +9,7 @@ export const createNoteController = catchAsync(async (req: Request, res: Respons
     if (!userId) {
         return res.status(401).json({ status: 'fail', message: 'Unauthorized' });
     }
-  
+
     const { title, content, isPublic } = req.body;
 
     if (!title || !content) {
@@ -29,4 +29,21 @@ export const createNoteController = catchAsync(async (req: Request, res: Respons
         status: 'success',
         data: newNote
     });
+});
+
+// GET ALL NOTES CONTROLLER
+export const getAllNotesController = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.user?.userId;
+
+    if (!userId) {
+        return res.status(401).json({ status: 'fail', message: 'Unauthorized' });
+    };
+
+    const notes = await NoteService.getAllNotesService(userId);
+    res.status(200).json({
+        status: 'success',
+        data: notes
+
+    });
+
 });

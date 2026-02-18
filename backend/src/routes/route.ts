@@ -18,6 +18,6 @@ router.get('/profile/me', authMiddleware, getProfileByUserIdController);
 router.put('/profile/edit-profile', authMiddleware, updateProfileController);
 //NOTE ROUTES   
 router.post('/notes/create-new-note', authMiddleware, createNoteController)
-
+router.get('/notes/get-all-notes', authMiddleware, createNoteController);
 
 export default router;

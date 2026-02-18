@@ -22,3 +22,10 @@ export const createNoteService = async (userId: number, noteData: NoteDto) => {
         }
     });
 };
+
+// GET ALL NOTES SERVICE
+export const getAllNotesService = async (userId: number) => {
+    return await prisma.note.findMany({
+        where: { userId }
+    });
+};
