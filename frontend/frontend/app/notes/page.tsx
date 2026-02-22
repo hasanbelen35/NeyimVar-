@@ -1,48 +1,110 @@
 "use client";
 
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/store/store';
+import { fetchNotes, deleteNote } from '@/store/noteSlice';
 import BackButton from '@/components/BackButton';
+import { useRouter } from 'next/navigation';
 
 const NOTES_CONFIG = {
-
     TITLE: "Notlarım",
     SUBTITLE_PREFIX: "Toplam",
     SUBTITLE_SUFFIX: "notun var.",
     EMPTY_STATE: "Henüz hiç not eklememişsin.",
     ADD_BUTTON: "Yeni Not Oluştur",
     SEARCH_PLACEHOLDER: "Notlarında ara...",
-    DATE_PREFIX: "Oluşturulma:",
     MODAL: {
-        TITLE_LABEL: "Başlık",
-        CONTENT_LABEL: "Notun",
-        SAVE: "Kaydet",
+        TITLE: "Notu Sil",
+        DESCRIPTION: "Bu notu silmek istediğinize emin misiniz? Bu işlem geri alınamaz.",
+        CONFIRM: "Sil",
         CANCEL: "Vazgeç"
     }
 };
 
 const NotesPage = () => {
+    const router = useRouter();
+    const dispatch = useDispatch<AppDispatch>();
+    
+    const { notes, loading, error } = useSelector((state: RootState) => state.notes);
+    const [searchTerm, setSearchTerm] = useState("");
+    
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
 
-    const [notes] = useState([
-        { id: 1, title: "Market Listesi", content: "Süt, yumurta, ekmek almayı unutma.", date: "12.10.2023", color: "blue" },
-        { id: 2, title: "React Çalışma Notları", content: "useEffect cleanup fonksiyonu neden önemli?", date: "15.10.2023", color: "indigo" },
-        { id: 3, title: "Film Önerileri", content: "Inception, Interstellar, Tenet. Nolan maratonu yapılacak.", date: "18.10.2023", color: "slate" },
-    ]);
+    useEffect(() => {
+        dispatch(fetchNotes());
+    }, [dispatch]);
+
+    const openDeleteModal = (id: string) => {
+        setSelectedNoteId(id);
+        setIsModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (selectedNoteId) {
+            await dispatch(deleteNote(selectedNoteId)).unwrap();
+            setIsModalOpen(false);
+            setSelectedNoteId(null);
+        }
+    };
+
+    const filteredNotes = notes.filter(note => 
+        note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        note.content.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-300 p-6">
-            <div className="max-w-7xl mx-auto">
+        <div className="relative min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-300 p-6">
+            
+            {isModalOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div 
+                        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"
+                        onClick={() => setIsModalOpen(false)}
+                    />
+                    
+                    <div className="relative bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-2xl max-w-sm w-full border border-slate-200 dark:border-slate-700 transform transition-all scale-100 animate-in fade-in zoom-in duration-200">
+                        <div className="text-center space-y-4">
+                            <div className="mx-auto w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center text-3xl">
+                                🗑️
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                                {NOTES_CONFIG.MODAL.TITLE}
+                            </h3>
+                            <p className="text-slate-500 dark:text-slate-400 text-sm">
+                                {NOTES_CONFIG.MODAL.DESCRIPTION}
+                            </p>
+                        </div>
+                        
+                        <div className="flex gap-3 mt-8">
+                            <button 
+                                onClick={() => setIsModalOpen(false)}
+                                className="flex-1 px-4 py-3 rounded-xl font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                            >
+                                {NOTES_CONFIG.MODAL.CANCEL}
+                            </button>
+                            <button 
+                                onClick={confirmDelete}
+                                className="flex-1 px-4 py-3 rounded-xl font-bold text-white bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/30 transition-all active:scale-95"
+                            >
+                                {NOTES_CONFIG.MODAL.CONFIRM}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
-                {/* BACK BUTTON */}
+            <div className={`max-w-7xl mx-auto transition-all ${isModalOpen ? 'blur-sm scale-[0.98]' : ''}`}>
                 <BackButton />
 
-                {/* ÜST KISIM: BAŞLIK VE AKSİYONLAR */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                     <div>
                         <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                             {NOTES_CONFIG.TITLE}
                         </h1>
                         <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-                            {NOTES_CONFIG.SUBTITLE_PREFIX} {notes.length} {NOTES_CONFIG.SUBTITLE_SUFFIX}
+                            {loading ? "Yükleniyor..." : `${NOTES_CONFIG.SUBTITLE_PREFIX} ${notes.length} ${NOTES_CONFIG.SUBTITLE_SUFFIX}`}
                         </p>
                     </div>
 
@@ -50,22 +112,26 @@ const NotesPage = () => {
                         <div className="relative flex-1 md:w-64">
                             <input
                                 type="text"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
                                 placeholder={NOTES_CONFIG.SEARCH_PLACEHOLDER}
                                 className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all text-slate-900 dark:text-white"
                             />
                             <span className="absolute left-3 top-2.5 opacity-40">🔍</span>
                         </div>
 
-                        <button className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-500/30 transition-all active:scale-95">
+                        <button
+                            onClick={() => router.push('/add-new-note')}
+                            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-500/30 transition-all active:scale-95"
+                        >
                             <span>+</span> {NOTES_CONFIG.ADD_BUTTON}
                         </button>
                     </div>
                 </div>
 
-                {/* NOTLAR GRİDİ */}
-                {notes.length > 0 ? (
+                {filteredNotes.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {notes.map((note) => (
+                        {filteredNotes.map((note) => (
                             <div
                                 key={note.id}
                                 className="group relative bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
@@ -77,7 +143,10 @@ const NotesPage = () => {
                                         <h3 className="text-lg font-bold text-slate-900 dark:text-white line-clamp-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                                             {note.title}
                                         </h3>
-                                        <button className="text-slate-400 hover:text-red-500 transition-colors">
+                                        <button 
+                                            onClick={() => openDeleteModal(String(note.id))}
+                                            className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+                                        >
                                             🗑️
                                         </button>
                                     </div>
@@ -88,9 +157,12 @@ const NotesPage = () => {
 
                                     <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700/50">
                                         <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-                                            {note.date}
+                                            {note.createdAt ? new Date(note.createdAt).toLocaleDateString('tr-TR') : 'Yeni'}
                                         </span>
-                                        <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors text-xs font-bold text-blue-600">
+                                        <button 
+                                            onClick={() => router.push(`/edit-note/${note.id}`)}
+                                            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors text-xs font-bold text-blue-600"
+                                        >
                                             Düzenle
                                         </button>
                                     </div>
@@ -100,9 +172,9 @@ const NotesPage = () => {
                     </div>
                 ) : (
                     <div className="flex flex-col items-center justify-center py-20 text-center">
-                        <div className="text-6xl mb-4 opacity-20">📝</div>
-                        <p className="text-slate-500 dark:text-slate-400 font-medium">
-                            {NOTES_CONFIG.EMPTY_STATE}
+                        <div className="text-6xl mb-4 opacity-20 text-slate-400">📝</div>
+                        <p className="text-slate-500 dark:text-slate-400 font-medium italic">
+                            {!loading && NOTES_CONFIG.EMPTY_STATE}
                         </p>
                     </div>
                 )}

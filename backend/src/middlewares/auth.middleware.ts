@@ -1,10 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../utils/jwt";
-
-
+import { AuthRequest } from '../types/express';
 // auth mıddleware to access protected routes
 export const authMiddleware = (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction
 ) => {
@@ -16,7 +15,7 @@ export const authMiddleware = (
     }
 
     const decoded = verifyToken(token) as { userId: string };
-   
+
     if (!decoded) {
       return unauthorized(res, "Invalid token or expired.");
     }

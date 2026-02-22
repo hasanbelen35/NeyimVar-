@@ -4,7 +4,7 @@ import { catchAsync } from '../utils/catchAsync';
 import { validateUser } from '../utils/validate.user';
 
 export class NoteController {
-    // get into NoteController with dependency injection
+   
     constructor(private noteService: NoteService) { }
     
     // CREATE NOTE CONTROLLER

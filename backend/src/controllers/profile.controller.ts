@@ -2,17 +2,15 @@ import { Request, Response } from 'express';
 import { catchAsync } from "../utils/catchAsync";
 import { AppError } from '../utils/appError';
 import { validateUser } from '../utils/validate.user';
-import { ProfileService } from '../services/profile.service'; // Service'in class olduğunu varsayıyorum
+import { ProfileService } from '../services/profile.service'; 
 
 export class ProfileController {
-  // Service'i constructor üzerinden içeri alıyoruz
   constructor(private profileService: ProfileService) {}
 
-  // PROFIL GETIRME
+  // GET PROFILE BY USER ID CONTROLLER
   getProfileByUserId = catchAsync(async (req: Request, res: Response) => {
     const userId = validateUser(req);
     
-    // Service metodunu çağırıyoruz
     const profile = await this.profileService.getProfileByUserId(userId);
 
     if (!profile) {
@@ -25,7 +23,7 @@ export class ProfileController {
     });
   });
 
-  // PROFIL GÜNCELLEME
+  // UPDATE PROFILE CONTROLLER
   updateProfile = catchAsync(async (req: Request, res: Response) => {
     const userId = validateUser(req);
     const profileData = req.body;

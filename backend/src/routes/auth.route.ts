@@ -8,7 +8,6 @@ import { registerSchema, loginSchema } from '../validators/authValidator';
 
 const authRouter = Router();
 
-// DEPENDENCY INJECTION 
 const authService = new AuthService();
 const authController = new AuthController(authService);
 

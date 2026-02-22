@@ -31,7 +31,7 @@ export const loginUser = createAsyncThunk(
     async (loginData: unknown, { rejectWithValue }) => {
         try {
             const response = await axios.post(
-                `${process.env.NEXT_PUBLIC_SERVER_URL}/api/login`,
+                `${process.env.NEXT_PUBLIC_SERVER_URL}/api/auth/login`,
                 loginData,
                 {
                     headers: { 'Content-Type': 'application/json' },
@@ -56,7 +56,7 @@ export const registerUser = createAsyncThunk(
     async (userData: unknown, { rejectWithValue }) => {
         try {
             const response = await axios.post(
-                `${process.env.NEXT_PUBLIC_SERVER_URL}/api/register`,
+                `${process.env.NEXT_PUBLIC_SERVER_URL}/api/auth/register`,
                 userData,
                 {
                     headers: { 'Content-Type': 'application/json' },
