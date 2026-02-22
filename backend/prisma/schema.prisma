@@ -8,7 +8,7 @@ datasource db {
 }
 // USER MODEL
 model User {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid()) 
   email     String   @unique
   password  String
   name      String
@@ -20,28 +20,29 @@ model User {
   profile   Profile?
   notes     Note[]
 }
+
 // PROFILE MODEL
 model Profile {
-  id          Int     @id @default(autoincrement())
-  userId      Int     @unique
-  username    String? @unique
-  bio         String? @db.Text
+  id          String   @id @default(uuid())
+  userId      String   @unique 
+  username    String?  @unique
+  bio         String?  @db.Text
   university  String?
   department  String?
-  avatarUrl   String? @db.Text
+  avatarUrl   String?  @db.Text
 
-  user        User    @relation(fields: [userId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
 }
 
 // NOTE MODEL
 model Note {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   title     String
   content   String   @db.Text
   isPublic  Boolean  @default(true) 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  userId    Int
+  userId    String   
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

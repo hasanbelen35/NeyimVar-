@@ -14,7 +14,7 @@ import { NoteDto } from '../types/note.type';
 import prisma from '../database/db';
 
 // CREATE NOTE SERVICE
-export const createNoteService = async (userId: number, noteData: NoteDto) => {
+export const createNoteService = async (userId: string, noteData: NoteDto) => {
     return await prisma.note.create({
         data: {
             ...noteData,
@@ -24,14 +24,14 @@ export const createNoteService = async (userId: number, noteData: NoteDto) => {
 };
 
 // GET ALL NOTES SERVICE
-export const getAllNotesService = async (userId: number) => {
+export const getAllNotesService = async (userId: string) => {
     return await prisma.note.findMany({
         where: { userId }
     });
 };
 
 // DELETE NOTE SERVICE
-export const deleteNoteService = async (noteId: number, userId: number) => {
+export const deleteNoteService = async (noteId: string, userId: string) => {
     const note = await prisma.note.findUnique({
         where: { id: noteId }
     });
@@ -48,7 +48,7 @@ export const deleteNoteService = async (noteId: number, userId: number) => {
 };
 
 // UPDATE NOTE SERVICE
-export const updateNoteService = async (noteId: number, userId: number, updatedNoteData: NoteDto) => {
+export const updateNoteService = async (noteId: string, userId: string, updatedNoteData: NoteDto) => {
     const note = await prisma.note.findUnique({
         where: { id: noteId }
     });

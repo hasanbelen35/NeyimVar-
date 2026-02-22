@@ -5,7 +5,7 @@ import { catchAsync } from '../utils/catchAsync';
 declare global {
   namespace Express {
     interface Request {
-      user?: { userId: number };
+      user?: { userId: string };
     }
   }
 }

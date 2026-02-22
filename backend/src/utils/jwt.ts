@@ -3,12 +3,12 @@ const JWT_SECRET = process.env.JWT_SECRET as string;
 // utils/jwt.ts
 
 interface JwtPayload {
-  userId: number;
+  userId: string;
   email: string;
 
 };
 
-export const generateToken = (payloadData: { userId: number, email: string }) => {
+export const generateToken = (payloadData: { userId: string, email: string }) => {
   return jwt.sign(
     {
       userId: payloadData.userId,

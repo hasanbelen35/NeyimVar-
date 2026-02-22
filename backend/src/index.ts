@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import { connectDB } from "./database/db"
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
+import { globalErrorHandler } from "./middlewares/error.middleware";
 // dotenv config
 dotenv.config();
 const app = express();
@@ -24,7 +25,7 @@ connectDB();
 
 //routes
 app.use("/api", routes);
-
+app.use(globalErrorHandler)
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

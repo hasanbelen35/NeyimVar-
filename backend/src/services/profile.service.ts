@@ -2,7 +2,7 @@ import prisma from '../database/db';
 import { ProfileDto } from '../types/profile.type';
 
 // GET PROFILE BY USER ID SERVICE
-export const getProfileByUserId = async (userId: number) => {
+export const getProfileByUserId = async (userId: string) => {
     return await prisma.profile.findUnique({
         where: { userId },
         include: {
@@ -25,7 +25,7 @@ username    String? @unique
 
 
 // UPDATE PROFILE SERVICE
-export const updateProfile = async (userId: number, profileData: ProfileDto) => {
+export const updateProfile = async (userId: string, profileData: ProfileDto) => {
     return await prisma.profile.update({
         where: { userId },
         data: {

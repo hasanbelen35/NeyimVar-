@@ -1,26 +1,17 @@
 import { getProfileByUserId, updateProfile } from "../services/profile.service";
 import { Request, Response } from 'express';
 import { catchAsync } from "../utils/catchAsync";
+import { AppError } from '../utils/appError';
+import { validateUser } from '../utils/validate.user';
+
 // get profile by user id controller
 export const getProfileByUserIdController = catchAsync(
     async (req: Request, res: Response) => {
-
-        if (!req.user?.userId) {
-            return res.status(401).json({
-                status: "fail",
-                message: "Unauthorized"
-            });
-        }
-
-        const profile = await getProfileByUserId(req.user.userId);
-
+        const userId = validateUser(req);
+        const profile = await getProfileByUserId(userId);
         if (!profile) {
-            return res.status(404).json({
-                status: "error",
-                message: "Profile not found."
-            });
+            throw new AppError("Profile not found.", 404)
         }
-
         res.status(200).json({
             status: "success",
             data: profile
@@ -32,22 +23,12 @@ export const getProfileByUserIdController = catchAsync(
 // async (userId: number, profileData: ProfileDto) => {
 export const updateProfileController = catchAsync(
     async (req: Request, res: Response) => {
-        const userId = req.user?.userId;
-
-        if (!userId) {
-            return res.status(401).json({
-                status: "fail",
-                message: "Unauthorized"
-            });
-        }
-
+        const userId = validateUser(req);
         const profileData = req.body;
-
         const updatedProfile = await updateProfile(
             userId,
             profileData
         );
-
         res.status(200).json({
             status: "success",
             data: updatedProfile

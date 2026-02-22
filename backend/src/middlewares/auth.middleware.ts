@@ -15,8 +15,8 @@ export const authMiddleware = (
       return unauthorized(res, "You are not logged in!");
     }
 
-    const decoded = verifyToken(token);
-
+    const decoded = verifyToken(token) as { userId: string };
+   
     if (!decoded) {
       return unauthorized(res, "Invalid token or expired.");
     }
