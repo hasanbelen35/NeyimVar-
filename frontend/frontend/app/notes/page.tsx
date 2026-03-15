@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store/store';
-import { fetchNotes, deleteNote } from '@/store/noteSlice';
+import { fetchNotes, deleteNote, updateNote } from '@/store/noteSlice';
 import BackButton from '@/components/BackButton';
 import { useRouter } from 'next/navigation';
 
@@ -25,17 +25,26 @@ const NOTES_CONFIG = {
 const NotesPage = () => {
     const router = useRouter();
     const dispatch = useDispatch<AppDispatch>();
-    
-    const { notes, loading, error } = useSelector((state: RootState) => state.notes);
+
+    const { notes, loading } = useSelector((state: RootState) => state.notes);
     const [searchTerm, setSearchTerm] = useState("");
-    
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
+
+    const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+    const [editForm, setEditForm] = useState({ title: '', content: '' });
 
     useEffect(() => {
         dispatch(fetchNotes());
     }, [dispatch]);
 
+    // UPDATE NOTE
+    const handleUpdateNote = async (id: string) => {
+        await dispatch(updateNote({ id, data: editForm })).unwrap();
+        setEditingNoteId(null);
+    };
+    // delete note
     const openDeleteModal = (id: string) => {
         setSelectedNoteId(id);
         setIsModalOpen(true);
@@ -48,22 +57,22 @@ const NotesPage = () => {
             setSelectedNoteId(null);
         }
     };
-
-    const filteredNotes = notes.filter(note => 
+    // filter notes based on search term
+    const filteredNotes = notes.filter(note =>
         note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         note.content.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
         <div className="relative min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-300 p-6">
-            
+
             {isModalOpen && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                    <div 
+                    <div
                         className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"
                         onClick={() => setIsModalOpen(false)}
                     />
-                    
+
                     <div className="relative bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-2xl max-w-sm w-full border border-slate-200 dark:border-slate-700 transform transition-all scale-100 animate-in fade-in zoom-in duration-200">
                         <div className="text-center space-y-4">
                             <div className="mx-auto w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center text-3xl">
@@ -76,15 +85,15 @@ const NotesPage = () => {
                                 {NOTES_CONFIG.MODAL.DESCRIPTION}
                             </p>
                         </div>
-                        
+
                         <div className="flex gap-3 mt-8">
-                            <button 
+                            <button
                                 onClick={() => setIsModalOpen(false)}
                                 className="flex-1 px-4 py-3 rounded-xl font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
                             >
                                 {NOTES_CONFIG.MODAL.CANCEL}
                             </button>
-                            <button 
+                            <button
                                 onClick={confirmDelete}
                                 className="flex-1 px-4 py-3 rounded-xl font-bold text-white bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/30 transition-all active:scale-95"
                             >
@@ -140,31 +149,69 @@ const NotesPage = () => {
 
                                 <div className="relative z-10">
                                     <div className="flex justify-between items-start mb-4">
-                                        <h3 className="text-lg font-bold text-slate-900 dark:text-white line-clamp-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                            {note.title}
-                                        </h3>
-                                        <button 
+                                        {editingNoteId === String(note.id) ? (
+                                            <input
+                                                value={editForm.title}
+                                                onChange={(e) => setEditForm(prev => ({ ...prev, title: e.target.value }))}
+                                                className="text-lg font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-700 rounded-lg px-2 py-1 w-full outline-none focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        ) : (
+                                            <h3 className="text-lg font-bold text-slate-900 dark:text-white line-clamp-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                                {note.title}
+                                            </h3>
+                                        )}
+                                        <button
                                             onClick={() => openDeleteModal(String(note.id))}
-                                            className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+                                            className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all ml-2 shrink-0"
                                         >
                                             🗑️
                                         </button>
                                     </div>
 
-                                    <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6 line-clamp-4">
-                                        {note.content}
-                                    </p>
+                                    {editingNoteId === String(note.id) ? (
+                                        <textarea
+                                            value={editForm.content}
+                                            onChange={(e) => setEditForm(prev => ({ ...prev, content: e.target.value }))}
+                                            rows={4}
+                                            className="w-full text-slate-600 dark:text-slate-400 text-sm bg-slate-100 dark:bg-slate-700 rounded-lg px-2 py-1 outline-none focus:ring-2 focus:ring-blue-500 resize-none mb-6"
+                                        />
+                                    ) : (
+                                        <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6 line-clamp-4">
+                                            {note.content}
+                                        </p>
+                                    )}
 
                                     <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700/50">
                                         <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
                                             {note.createdAt ? new Date(note.createdAt).toLocaleDateString('tr-TR') : 'Yeni'}
                                         </span>
-                                        <button 
-                                            onClick={() => router.push(`/edit-note/${note.id}`)}
-                                            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors text-xs font-bold text-blue-600"
-                                        >
-                                            Düzenle
-                                        </button>
+
+                                        {editingNoteId === String(note.id) ? (
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={() => setEditingNoteId(null)}
+                                                    className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors text-xs font-bold text-slate-500"
+                                                >
+                                                    İptal
+                                                </button>
+                                                <button
+                                                    onClick={() => handleUpdateNote(String(note.id))}
+                                                    className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-xs font-bold"
+                                                >
+                                                    Kaydet
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <button
+                                                onClick={() => {
+                                                    setEditingNoteId(String(note.id));
+                                                    setEditForm({ title: note.title, content: note.content });
+                                                }}
+                                                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors text-xs font-bold text-blue-600"
+                                            >
+                                                Düzenle
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             </div>
