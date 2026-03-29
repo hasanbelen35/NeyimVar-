@@ -26,12 +26,12 @@ const NotesPage = () => {
     const router = useRouter();
     const dispatch = useDispatch<AppDispatch>();
 
-    const { notes, loading } = useSelector((state: RootState) => state.notes);
-    const [searchTerm, setSearchTerm] = useState("");
+    const notes = useSelector((state: RootState) => state.notes.myNotes);
+    const loading = useSelector((state: RootState) => state.notes.myNotesLoading);
 
+    const [searchTerm, setSearchTerm] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
-
     const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
     const [editForm, setEditForm] = useState({ title: '', content: '' });
 
@@ -39,12 +39,11 @@ const NotesPage = () => {
         dispatch(fetchNotes());
     }, [dispatch]);
 
-    // UPDATE NOTE
     const handleUpdateNote = async (id: string) => {
         await dispatch(updateNote({ id, data: editForm })).unwrap();
         setEditingNoteId(null);
     };
-    // delete note
+
     const openDeleteModal = (id: string) => {
         setSelectedNoteId(id);
         setIsModalOpen(true);
@@ -57,8 +56,8 @@ const NotesPage = () => {
             setSelectedNoteId(null);
         }
     };
-    // filter notes based on search term
-    const filteredNotes = notes.filter(note =>
+
+    const filteredNotes = (notes ?? []).filter((note) =>
         note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         note.content.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -72,8 +71,7 @@ const NotesPage = () => {
                         className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"
                         onClick={() => setIsModalOpen(false)}
                     />
-
-                    <div className="relative bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-2xl max-w-sm w-full border border-slate-200 dark:border-slate-700 transform transition-all scale-100 animate-in fade-in zoom-in duration-200">
+                    <div className="relative bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-2xl max-w-sm w-full border border-slate-200 dark:border-slate-700">
                         <div className="text-center space-y-4">
                             <div className="mx-auto w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center text-3xl">
                                 🗑️
@@ -85,7 +83,6 @@ const NotesPage = () => {
                                 {NOTES_CONFIG.MODAL.DESCRIPTION}
                             </p>
                         </div>
-
                         <div className="flex gap-3 mt-8">
                             <button
                                 onClick={() => setIsModalOpen(false)}
@@ -113,7 +110,10 @@ const NotesPage = () => {
                             {NOTES_CONFIG.TITLE}
                         </h1>
                         <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-                            {loading ? "Yükleniyor..." : `${NOTES_CONFIG.SUBTITLE_PREFIX} ${notes.length} ${NOTES_CONFIG.SUBTITLE_SUFFIX}`}
+                            {loading
+                                ? "Yükleniyor..."
+                                : `${NOTES_CONFIG.SUBTITLE_PREFIX} ${notes?.length ?? 0} ${NOTES_CONFIG.SUBTITLE_SUFFIX}`
+                            }
                         </p>
                     </div>
 
@@ -128,7 +128,6 @@ const NotesPage = () => {
                             />
                             <span className="absolute left-3 top-2.5 opacity-40">🔍</span>
                         </div>
-
                         <button
                             onClick={() => router.push('/add-new-note')}
                             className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-500/30 transition-all active:scale-95"
@@ -138,7 +137,11 @@ const NotesPage = () => {
                     </div>
                 </div>
 
-                {filteredNotes.length > 0 ? (
+                {loading ? (
+                    <div className="flex justify-center items-center py-20">
+                        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                    </div>
+                ) : filteredNotes.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {filteredNotes.map((note) => (
                             <div
@@ -183,7 +186,10 @@ const NotesPage = () => {
 
                                     <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700/50">
                                         <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-                                            {note.createdAt ? new Date(note.createdAt).toLocaleDateString('tr-TR') : 'Yeni'}
+                                            {note.createdAt
+                                                ? new Date(note.createdAt).toLocaleDateString('tr-TR')
+                                                : 'Yeni'
+                                            }
                                         </span>
 
                                         {editingNoteId === String(note.id) ? (
@@ -221,7 +227,7 @@ const NotesPage = () => {
                     <div className="flex flex-col items-center justify-center py-20 text-center">
                         <div className="text-6xl mb-4 opacity-20 text-slate-400">📝</div>
                         <p className="text-slate-500 dark:text-slate-400 font-medium italic">
-                            {!loading && NOTES_CONFIG.EMPTY_STATE}
+                            {NOTES_CONFIG.EMPTY_STATE}
                         </p>
                     </div>
                 )}
