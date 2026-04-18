@@ -50,7 +50,7 @@ export class NoteService {
             }
         });
     }
-    // GET PAGINATED NOTES SERVICE
+   // GET PAGINATED NOTES SERVICE
     async getPaginatedNotesService(page: number, limit: number) {
         const offset = (page - 1) * limit;
 
@@ -75,6 +75,11 @@ export class NoteService {
                                 }
                             }
                         }
+                    },
+                    _count: {
+                        select: {
+                            likes: true
+                        }
                     }
                 }
             }),
@@ -83,8 +88,14 @@ export class NoteService {
             })
         ]);
 
+        const formattedNotes = notes.map(note => ({
+            ...note,
+            likeCount: note._count.likes,
+            _count: undefined 
+        }));
+
         return {
-            notes,
+            notes: formattedNotes,
             totalPages: Math.ceil(totalNotes / limit),
             currentPage: page,
             hasMore: page < Math.ceil(totalNotes / limit)
