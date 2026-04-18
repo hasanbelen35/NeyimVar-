@@ -12,6 +12,8 @@ export interface Note {
     content: string;
     isPublic: boolean;
     userId: string;
+    likeCount: number;
+    isLiked?: boolean;
     createdAt?: string;
     updatedAt?: string;
     user?: {
@@ -34,11 +36,9 @@ interface PaginationMeta {
 }
 
 interface NoteState {
-    // Kişiye özel notlar (get-all-notes)
     myNotes: Note[];
     myNotesLoading: boolean;
 
-    // Feed notları (paginated - herkese açık)
     feedNotes: Note[];
     feedLoading: boolean;
     feedPagination: PaginationMeta;
@@ -66,6 +66,7 @@ const initialState: NoteState = {
 };
 
 const API_URL = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/notes`;
+const LIKE_API_URL = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/likes`;
 
 // GET ALL NOTES 
 export const fetchNotes = createAsyncThunk(
@@ -148,6 +149,22 @@ export const updateNote = createAsyncThunk(
     }
 );
 
+// TOOGLE LIKE 
+export const toggleLike = createAsyncThunk(
+    'notes/toggleLike',
+    async (noteId: string, { rejectWithValue }) => {
+        try {
+            const response = await axios.post(`${LIKE_API_URL}/${noteId}`, {}, {
+                withCredentials: true,
+            });
+            return { noteId, ...response.data.data };
+        } catch (err) {
+            const error = err as AxiosError<ApiError>;
+            return rejectWithValue(error.response?.data?.message || 'Beğeni işlemi başarısız');
+        }
+    }
+);
+
 const noteSlice = createSlice({
     name: 'notes',
     initialState,
@@ -206,14 +223,15 @@ const noteSlice = createSlice({
                 state.error = action.payload as string;
             })
 
-            // CREATE NOTE — ikisine de ekle
+            // CREATE NOTE 
             .addCase(createNote.pending, (state) => {
                 state.loading = true;
             })
             .addCase(createNote.fulfilled, (state, action: PayloadAction<Note>) => {
                 state.loading = false;
-                state.myNotes.unshift(action.payload);   // kişisel listeye ekle
-                state.feedNotes.unshift(action.payload); // feed'e de ekle
+                const newNote = { ...action.payload, likeCount: action.payload.likeCount || 0 };
+                state.myNotes.unshift(newNote);
+                state.feedNotes.unshift(newNote);
                 state.success = true;
             })
             .addCase(createNote.rejected, (state, action) => {
@@ -221,21 +239,33 @@ const noteSlice = createSlice({
                 state.error = action.payload as string;
             })
 
-            // DELETE NOTE — ikisinden de sil
+            // DELETE NOTE 
             .addCase(deleteNote.fulfilled, (state, action: PayloadAction<string>) => {
                 state.myNotes = state.myNotes.filter((n) => n.id !== action.payload);
                 state.feedNotes = state.feedNotes.filter((n) => n.id !== action.payload);
             })
 
-            // UPDATE NOTE — ikisinde de güncelle
+            // UPDATE NOTE 
             .addCase(updateNote.fulfilled, (state, action: PayloadAction<Note>) => {
                 const myIdx = state.myNotes.findIndex((n) => n.id === action.payload.id);
-                if (myIdx !== -1) state.myNotes[myIdx] = action.payload;
+                if (myIdx !== -1) state.myNotes[myIdx] = { ...state.myNotes[myIdx], ...action.payload };
 
                 const feedIdx = state.feedNotes.findIndex((n) => n.id === action.payload.id);
-                if (feedIdx !== -1) state.feedNotes[feedIdx] = action.payload;
+                if (feedIdx !== -1) state.feedNotes[feedIdx] = { ...state.feedNotes[feedIdx], ...action.payload };
 
                 state.success = true;
+            })
+
+            .addCase(toggleLike.fulfilled, (state, action: PayloadAction<{ noteId: string; isLiked: boolean; likeCount: number }>) => {
+                const { noteId, isLiked, likeCount } = action.payload;
+                const update = (n: Note) => {
+                    if (n.id === noteId) {
+                        n.likeCount = likeCount;
+                        n.isLiked = isLiked;
+                    }
+                };
+                state.feedNotes.forEach(update);
+                state.myNotes.forEach(update);
             });
     },
 });

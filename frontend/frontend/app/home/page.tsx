@@ -3,7 +3,7 @@
 import { useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store/store';
-import { fetchFeedNotes, resetFeed } from '@/store/noteSlice';
+import { fetchFeedNotes, resetFeed, toggleLike } from '@/store/noteSlice';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 
 export default function HomePage() {
@@ -25,12 +25,18 @@ export default function HomePage() {
     }
   }, [dispatch, feedLoading, feedPagination]);
 
+  const handleLike = (e: React.MouseEvent, noteId: string) => {
+    e.stopPropagation(); 
+    dispatch(toggleLike(noteId));
+  };
+
   const { triggerRef } = useInfiniteScroll(loadMore, feedPagination.hasMore, feedLoading);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-300 p-6">
       <div className="max-w-2xl mx-auto">
 
+        {/* LOADING SKELETON */}
         {feedLoading && feedNotes.length === 0 && (
           <div className="flex flex-col gap-4">
             {[...Array(5)].map((_, i) => (
@@ -59,8 +65,6 @@ export default function HomePage() {
               style={{ animationDelay: `${index * 40}ms` }}
             >
               <div className="flex items-start justify-between gap-4">
-
-                {/*  Avatar + Username */}
                 <div className="flex items-center gap-2.5 shrink-0">
                   {note.user?.profile?.avatarUrl ? (
                     <img
@@ -78,7 +82,6 @@ export default function HomePage() {
                   </span>
                 </div>
 
-                {/* DATE */}
                 <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1 shrink-0">
                   {note.createdAt
                     ? new Date(note.createdAt).toLocaleDateString('tr-TR')
@@ -88,7 +91,6 @@ export default function HomePage() {
 
               <div className="my-3 border-t border-slate-100 dark:border-slate-700/50" />
 
-              {/* NOTE CONTENT */}
               <div>
                 <h3 className="text-base font-bold text-slate-900 dark:text-white line-clamp-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mb-1">
                   {note.title}
@@ -98,22 +100,45 @@ export default function HomePage() {
                 </p>
               </div>
 
-              {/* DOWN DATA */}
-              <div className="mt-3 flex items-center gap-2">
-                <span className="text-[10px] px-2.5 py-1 rounded-full font-semibold bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
-                  {note.user?.profile?.department ?? ''}
-                </span>
-                {note.isPublic && (
-                  <span className="text-[10px] px-2.5 py-1 rounded-full font-semibold bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400">
-                    Herkese Açık
+              {/* DOWN DATA & LIKE BUTTON */}
+              <div className="mt-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] px-2.5 py-1 rounded-full font-semibold bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+                    {note.user?.profile?.department ?? ''}
                   </span>
-                )}
+                  {note.isPublic && (
+                    <span className="text-[10px] px-2.5 py-1 rounded-full font-semibold bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400">
+                      Herkese Açık
+                    </span>
+                  )}
+                </div>
+
+                <button
+                  onClick={(e) => handleLike(e, note.id)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-2xl transition-all duration-300 ${
+                    note.isLiked 
+                      ? 'bg-pink-50 dark:bg-pink-900/20 text-pink-600 dark:text-pink-400' 
+                      : 'hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500'
+                  }`}
+                >
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    viewBox="0 0 24 24" 
+                    fill={note.isLiked ? "currentColor" : "none"} 
+                    stroke="currentColor" 
+                    className={`w-5 h-5 transition-transform duration-300 ${note.isLiked ? 'scale-110' : 'group-hover:scale-110'}`}
+                    strokeWidth="2"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                  </svg>
+                  <span className="text-xs font-bold">{note.likeCount ?? 0}</span>
+                </button>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Infinite scroll trigger */}
+        {/* INFINITE SCROLL TRIGGER */}
         {feedPagination.hasMore && (
           <div ref={triggerRef} className="flex justify-center py-10">
             {feedLoading && (
@@ -137,8 +162,6 @@ export default function HomePage() {
           </div>
         )}
       </div>
-
-
     </div>
   );
 }
