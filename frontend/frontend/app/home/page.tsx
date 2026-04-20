@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store/store';
 import { fetchFeedNotes, resetFeed, toggleLike } from '@/store/noteSlice';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
+import Spinner from '@/utils/Spinner';
 
 export default function HomePage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -26,13 +27,15 @@ export default function HomePage() {
   }, [dispatch, feedLoading, feedPagination]);
 
   const handleLike = (e: React.MouseEvent, noteId: string) => {
-    e.stopPropagation(); 
+    e.stopPropagation();
     dispatch(toggleLike(noteId));
   };
 
   const { triggerRef } = useInfiniteScroll(loadMore, feedPagination.hasMore, feedLoading);
+ 
 
   return (
+
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-300 p-6">
       <div className="max-w-2xl mx-auto">
 
@@ -115,17 +118,16 @@ export default function HomePage() {
 
                 <button
                   onClick={(e) => handleLike(e, note.id)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-2xl transition-all duration-300 ${
-                    note.isLiked 
-                      ? 'bg-pink-50 dark:bg-pink-900/20 text-pink-600 dark:text-pink-400' 
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-2xl transition-all duration-300 ${note.isLiked
+                      ? 'bg-pink-50 dark:bg-pink-900/20 text-pink-600 dark:text-pink-400'
                       : 'hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500'
-                  }`}
+                    }`}
                 >
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    viewBox="0 0 24 24" 
-                    fill={note.isLiked ? "currentColor" : "none"} 
-                    stroke="currentColor" 
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill={note.isLiked ? "currentColor" : "none"}
+                    stroke="currentColor"
                     className={`w-5 h-5 transition-transform duration-300 ${note.isLiked ? 'scale-110' : 'group-hover:scale-110'}`}
                     strokeWidth="2"
                   >
@@ -154,12 +156,7 @@ export default function HomePage() {
         )}
 
         {!feedLoading && feedNotes.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="text-6xl mb-4 opacity-20">📝</div>
-            <p className="text-slate-500 dark:text-slate-400 font-medium italic">
-              Henüz hiç not yok.
-            </p>
-          </div>
+          <Spinner />
         )}
       </div>
     </div>

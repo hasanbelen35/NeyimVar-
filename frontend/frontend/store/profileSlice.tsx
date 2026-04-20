@@ -16,6 +16,7 @@ interface ProfileState {
     loading: boolean;
     error: string | null;
     success: boolean;
+    hasFetched: boolean;
 }
 
 const initialState: ProfileState = {
@@ -27,8 +28,9 @@ const initialState: ProfileState = {
     loading: false,
     error: null,
     success: false,
+    hasFetched: false,
 };
-// UPDATE PROFILE ASYNC THUNK
+
 export const updateProfile = createAsyncThunk(
     'profile/updateProfile',
     async (profileData: UpdateProfilePayload, { rejectWithValue }) => {
@@ -36,28 +38,16 @@ export const updateProfile = createAsyncThunk(
             const response = await axios.put(
                 `${process.env.NEXT_PUBLIC_SERVER_URL}/api/profile/edit-profile`,
                 profileData,
-                {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    withCredentials: true,
-                }
+                { headers: { 'Content-Type': 'application/json' }, withCredentials: true }
             );
-
-            console.log('Profile update response:', response.data);
             return response.data;
         } catch (err) {
             const error = err as AxiosError<ApiError>;
-            const errorMessage =
-                error.response?.data?.message ||
-                error.message ||
-                'Profile update failed';
-            return rejectWithValue(errorMessage);
+            return rejectWithValue(error.response?.data?.message || error.message || 'Profile update failed');
         }
     }
 );
 
-// GET PROFILE BY USER ID THUNK
 export const getProfile = createAsyncThunk(
     'profile/getProfile',
     async (_, { rejectWithValue }) => {
@@ -66,16 +56,10 @@ export const getProfile = createAsyncThunk(
                 `${process.env.NEXT_PUBLIC_SERVER_URL}/api/profile/me`,
                 { withCredentials: true }
             );
-            console.log('Profile update response:', response.data.data);
-
             return response.data.data;
         } catch (err) {
             const error = err as AxiosError<ApiError>;
-            const errorMessage =
-                error.response?.data?.message ||
-                error.message ||
-                'Failed to fetch profile';
-            return rejectWithValue(errorMessage);
+            return rejectWithValue(error.response?.data?.message || error.message || 'Failed to fetch profile');
         }
     }
 );
@@ -89,11 +73,9 @@ const profileSlice = createSlice({
             state.loading = false;
             state.success = false;
         },
-    
     },
     extraReducers: (builder) => {
         builder
-            // GET PROFILE
             .addCase(getProfile.pending, (state) => {
                 state.loading = true;
                 state.error = null;
@@ -106,12 +88,13 @@ const profileSlice = createSlice({
                 state.avatarUrl = action.payload.avatarUrl;
                 state.bio = action.payload.bio;
                 state.success = true;
+                state.hasFetched = true;
             })
             .addCase(getProfile.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload as string;
+                state.hasFetched = true;
             })
-            // UPDATE PROFILE
             .addCase(updateProfile.pending, (state) => {
                 state.loading = true;
                 state.error = null;

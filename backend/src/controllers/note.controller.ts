@@ -63,7 +63,12 @@ export class NoteController {
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
 
-        const { notes, totalPages, currentPage, hasMore } = await this.noteService.getPaginatedNotesService(page, limit);
+        const userId = validateUser(req);
+
+        const { notes, totalPages, currentPage, hasMore } = await this.noteService.getPaginatedNotesService(
+            page,
+            limit,
+            userId);
 
         res.status(200).json({
             status: 'success',

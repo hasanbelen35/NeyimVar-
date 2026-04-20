@@ -6,6 +6,7 @@ import { AppDispatch, RootState } from '@/store/store';
 import { fetchNotes, deleteNote, updateNote } from '@/store/noteSlice';
 import BackButton from '@/components/BackButton';
 import { useRouter } from 'next/navigation';
+import Spinner from '@/utils/Spinner';
 
 const NOTES_CONFIG = {
     TITLE: "Notlarım",
@@ -40,7 +41,7 @@ const NotesPage = () => {
     }, [dispatch]);
 
     const handleUpdateNote = async (id: string) => {
-        await dispatch(updateNote({ id, data: editForm })).unwrap();
+        await dispatch(updateNote({ id, data: editForm  })).unwrap();
         setEditingNoteId(null);
     };
 
@@ -61,6 +62,7 @@ const NotesPage = () => {
         note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         note.content.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
 
     return (
         <div className="relative min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-300 p-6">
@@ -110,10 +112,7 @@ const NotesPage = () => {
                             {NOTES_CONFIG.TITLE}
                         </h1>
                         <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-                            {loading
-                                ? "Yükleniyor..."
-                                : `${NOTES_CONFIG.SUBTITLE_PREFIX} ${notes?.length ?? 0} ${NOTES_CONFIG.SUBTITLE_SUFFIX}`
-                            }
+                            {`${NOTES_CONFIG.SUBTITLE_PREFIX} ${notes?.length ?? 0} ${NOTES_CONFIG.SUBTITLE_SUFFIX}`}
                         </p>
                     </div>
 
@@ -137,11 +136,7 @@ const NotesPage = () => {
                     </div>
                 </div>
 
-                {loading ? (
-                    <div className="flex justify-center items-center py-20">
-                        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                    </div>
-                ) : filteredNotes.length > 0 ? (
+                {filteredNotes.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {filteredNotes.map((note) => (
                             <div
@@ -224,12 +219,7 @@ const NotesPage = () => {
                         ))}
                     </div>
                 ) : (
-                    <div className="flex flex-col items-center justify-center py-20 text-center">
-                        <div className="text-6xl mb-4 opacity-20 text-slate-400">📝</div>
-                        <p className="text-slate-500 dark:text-slate-400 font-medium italic">
-                            {NOTES_CONFIG.EMPTY_STATE}
-                        </p>
-                    </div>
+                   <Spinner />
                 )}
             </div>
         </div>

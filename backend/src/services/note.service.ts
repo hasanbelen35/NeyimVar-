@@ -50,8 +50,7 @@ export class NoteService {
             }
         });
     }
-   // GET PAGINATED NOTES SERVICE
-    async getPaginatedNotesService(page: number, limit: number) {
+    async getPaginatedNotesService(page: number, limit: number, currentUserId?: string) {
         const offset = (page - 1) * limit;
 
         const [notes, totalNotes] = await prisma.$transaction([
@@ -76,6 +75,14 @@ export class NoteService {
                             }
                         }
                     },
+                    likes: currentUserId ? {
+                        where: {
+                            userId: currentUserId
+                        },
+                        select: {
+                            userId: true
+                        }
+                    } : false,
                     _count: {
                         select: {
                             likes: true
@@ -87,11 +94,13 @@ export class NoteService {
                 where: { isPublic: true }
             })
         ]);
-
+        // is user liked who logged in
         const formattedNotes = notes.map(note => ({
             ...note,
             likeCount: note._count.likes,
-            _count: undefined 
+            isLiked: currentUserId ? (note as any).likes.length > 0 : false,
+            _count: undefined,
+            likes: undefined
         }));
 
         return {

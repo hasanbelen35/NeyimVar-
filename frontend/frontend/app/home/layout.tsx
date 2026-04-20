@@ -3,10 +3,12 @@ import { ReactNode } from 'react';
 import LeftMenu from '@/components/leftMenu';
 
 export default function HomeLayout({ children }: { children: ReactNode }) {
+   
+   
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
 
--          
+      
 
             <div className="max-w-6xl mx-auto px-4 py-6 grid grid-cols-[260px_1fr_260px] gap-6 items-start">
 

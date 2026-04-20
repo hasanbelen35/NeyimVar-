@@ -6,7 +6,7 @@ import { AppDispatch, RootState } from "@/store/store";
 import { createNote, resetNoteStatus } from "@/store/noteSlice";
 import ThemeToggle from "@/components/themeButton";
 import { useRouter } from "next/navigation";
-
+import BackButton from "@/components/BackButton";
 // CONFIG SECTION 
 const PAGE_CONFIG = {
   title: "Create New Note",
@@ -32,7 +32,7 @@ const PAGE_CONFIG = {
 const AddNotePage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-  
+
   const { loading, error, success } = useSelector((state: RootState) => state.notes);
 
   const [formData, setFormData] = useState({
@@ -58,13 +58,15 @@ const AddNotePage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-900 p-4 transition-colors duration-300">
-      <div className="absolute top-4 right-4">
-        <ThemeToggle />
-      </div>
+
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-slate-900 p-4 transition-colors duration-300">
+
+
 
       <div className="w-full max-w-2xl p-8 bg-white dark:bg-slate-800 shadow-2xl rounded-2xl space-y-6 border border-transparent dark:border-slate-700 transition-all">
-        
+        <div>
+          <BackButton />
+        </div>
         <div className="space-y-2 text-center">
           <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">
             {PAGE_CONFIG.title}
@@ -118,15 +120,14 @@ const AddNotePage = () => {
             >
               {PAGE_CONFIG.buttons.cancel}
             </button>
-            
+
             <button
               type="submit"
               disabled={loading}
-              className={`flex-[2] py-3 rounded-xl text-white font-bold shadow-lg transition-all transform active:scale-95 ${
-                loading 
-                ? "bg-gray-400 cursor-not-allowed" 
+              className={`flex-[2] py-3 rounded-xl text-white font-bold shadow-lg transition-all transform active:scale-95 ${loading
+                ? "bg-gray-400 cursor-not-allowed"
                 : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400"
-              }`}
+                }`}
             >
               {loading ? PAGE_CONFIG.buttons.loading : PAGE_CONFIG.buttons.create}
             </button>
